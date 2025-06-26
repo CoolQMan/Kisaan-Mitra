@@ -13,7 +13,7 @@ Kisaan Mitra (Farmer's Friend) is a comprehensive mobile application designed to
 - Support for various crop types (Rice, Wheat, Cotton, etc.)
 
 ### 💧 Smart Irrigation Management
-- Monitor soil moisture levels
+- Monitor soil moisture levels based on weather in the area
 - Receive irrigation scheduling recommendations
 - Weather-based irrigation guidance
 - Conservation of water resources
@@ -152,10 +152,10 @@ Contributions to improve Kisaan Mitra are welcome. Please feel free to submit a 
 
 ## 📄 License
 
-This project is licensed under the [insert license type] - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgements
 
-- AI4Humanity for supporting this prototype
 - All contributors who have helped shape this project
+- AI4Humanity for supporting this prototype
 - Farming communities for their valuable feedback and insights
