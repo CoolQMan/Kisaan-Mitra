@@ -39,13 +39,21 @@ Kisaan Mitra (Farmer's Friend) is a comprehensive mobile application designed to
 
 ## 📸 Screenshots
 
-| Home Screen | Crop Analysis | Analysis Results |
-|:-----------:|:-------------:|:----------------:|
-| [Coming Soon] | [Coming Soon] | [Coming Soon] |
+<table>
+  <tr>
+    <td align="center"><img src="https://github.com/user-attachments/assets/ad2ad3c0-218a-4435-a117-b472fa9bb005" alt="Home Screen" width="200"/><br><small>Home Screen</small></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/d76cff67-a9b9-4ded-ab51-f1d90107aa55" alt="Crop Analysis" width="200"/><br><small>Crop Analysis</small></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/eec24d48-d76f-4e26-8d42-c0ecddc71eab" alt="Analysis Result" width="200"/><br><small>Analysis Result</small></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/3a7af779-708b-4d4c-9f6b-a5a22a81b0cd" alt="Q&A Section" width="200"/><br><small>Q&A Section</small></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://github.com/user-attachments/assets/87cf7e85-80ac-4287-9d54-f519c9031340" alt="Marketplace" width="200"/><br><small>Marketplace</small></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/eebfe5bf-c64b-49b1-a6af-df8588c4c771" alt="Smart Irrigation" width="200"/><br><small>Smart Irrigation</small></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/76b37968-1909-49ac-a5de-25147a5ed8ae" alt="Irrigation Recommendation" width="200"/><br><small>Irrigation Recommendation</small></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/bac0d475-bec5-4c28-9c74-0de31d59c5ca" alt="Notification" width="200"/><br><small>Notification</small></td>
+  </tr>
+</table>
 
-| Q&A Section | Marketplace | User Profile |
-|:-----------:|:-----------:|:------------:|
-| [Coming Soon] | [Coming Soon] | [Coming Soon] |
 
 ## 🛠️ Technologies Used
 
@@ -106,6 +114,19 @@ Kisaan Mitra (Farmer's Friend) is a comprehensive mobile application designed to
    # For iOS (Not tested on iOS but you can try)
    flutter build ios --release 
    ```
+   
+## 🔑 Demo Account
+
+To quickly test the application without registration, you can use this pre-configured demo account:
+
+- **Email**: farmer@example.com
+- **Password**: password123
+
+Alternatively, you can use:
+- **Email**: test@example.com
+- **Password**: test123
+
+These credentials are automatically configured in the app's authentication service for development and testing purposes.
 
 ## 📋 Project Structure
 
