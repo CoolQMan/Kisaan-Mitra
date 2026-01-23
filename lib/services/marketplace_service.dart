@@ -60,7 +60,8 @@ class MarketplaceService {
   List<MarketPriceModel> getMarketPrices(String cropType) {
     return _marketPrices
         .where(
-            (price) => price.cropType.toLowerCase() == cropType.toLowerCase())
+          (price) => price.cropType.toLowerCase() == cropType.toLowerCase(),
+        )
         .toList();
   }
 
@@ -86,7 +87,8 @@ class MarketplaceService {
     // If no exact match, return an average price based on crop type
     final cropPrices = _marketPrices
         .where(
-            (price) => price.cropType.toLowerCase() == cropType.toLowerCase())
+          (price) => price.cropType.toLowerCase() == cropType.toLowerCase(),
+        )
         .toList();
 
     if (cropPrices.isNotEmpty) {
@@ -114,92 +116,106 @@ class MarketplaceService {
       final currentUserId = _authService.currentUser?.id ?? 'unknown';
 
       // Add mock listings
-      _listings.add(CropListingModel(
-        id: '1',
-        userId: 'user1',
-        userName: 'Farmer Singh',
-        cropType: 'Wheat',
-        quantity: 500,
-        quantityUnit: 'kg',
-        price: 22.5,
-        location: 'Punjab, India',
-        harvestDate: DateTime.now().subtract(const Duration(days: 15)),
-        listedDate: DateTime.now().subtract(const Duration(days: 5)),
-        description: 'High-quality wheat harvested from organic farm.',
-        images: ['wheat_image.jpg'],
-        isAvailable: true,
-      ));
+      _listings.add(
+        CropListingModel(
+          id: '1',
+          userId: 'user1',
+          userName: 'Farmer Singh',
+          cropType: 'Wheat',
+          quantity: 500,
+          quantityUnit: 'kg',
+          price: 22.5,
+          location: 'Punjab, India',
+          harvestDate: DateTime.now().subtract(const Duration(days: 15)),
+          listedDate: DateTime.now().subtract(const Duration(days: 5)),
+          description: 'High-quality wheat harvested from organic farm.',
+          images: ['wheat.jpg'],
+          isAvailable: true,
+        ),
+      );
 
-      _listings.add(CropListingModel(
-        id: '2',
-        userId: currentUserId,
-        userName: _authService.currentUser?.name ?? 'You',
-        cropType: 'Rice',
-        quantity: 300,
-        quantityUnit: 'kg',
-        price: 35.0,
-        location: 'Haryana, India',
-        harvestDate: DateTime.now().subtract(const Duration(days: 20)),
-        listedDate: DateTime.now().subtract(const Duration(days: 3)),
-        description: 'Premium basmati rice, freshly harvested.',
-        images: ['rice_image.jpg'],
-        isAvailable: true,
-      ));
+      _listings.add(
+        CropListingModel(
+          id: '2',
+          userId: currentUserId,
+          userName: _authService.currentUser?.name ?? 'You',
+          cropType: 'Rice',
+          quantity: 300,
+          quantityUnit: 'kg',
+          price: 35.0,
+          location: 'Haryana, India',
+          harvestDate: DateTime.now().subtract(const Duration(days: 20)),
+          listedDate: DateTime.now().subtract(const Duration(days: 3)),
+          description: 'Premium basmati rice, freshly harvested.',
+          images: ['rice.jpg'],
+          isAvailable: true,
+        ),
+      );
 
-      _listings.add(CropListingModel(
-        id: '3',
-        userId: 'user3',
-        userName: 'Anita Patel',
-        cropType: 'Cotton',
-        quantity: 200,
-        quantityUnit: 'kg',
-        price: 65.0,
-        location: 'Gujarat, India',
-        harvestDate: DateTime.now().subtract(const Duration(days: 30)),
-        listedDate: DateTime.now().subtract(const Duration(days: 10)),
-        description: 'High-quality cotton, ready for processing.',
-        images: ['cotton_image.jpg'],
-        isAvailable: true,
-      ));
+      _listings.add(
+        CropListingModel(
+          id: '3',
+          userId: 'user3',
+          userName: 'Anita Patel',
+          cropType: 'Cotton',
+          quantity: 200,
+          quantityUnit: 'kg',
+          price: 65.0,
+          location: 'Gujarat, India',
+          harvestDate: DateTime.now().subtract(const Duration(days: 30)),
+          listedDate: DateTime.now().subtract(const Duration(days: 10)),
+          description: 'High-quality cotton, ready for processing.',
+          images: ['cotton.jpg'],
+          isAvailable: true,
+        ),
+      );
     }
 
     if (_marketPrices.isEmpty) {
       // Add mock market prices
-      _marketPrices.add(MarketPriceModel(
-        cropType: 'Wheat',
-        location: 'Punjab, India',
-        minPrice: 20.0,
-        maxPrice: 25.0,
-        avgPrice: 22.5,
-        updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
-      ));
+      _marketPrices.add(
+        MarketPriceModel(
+          cropType: 'Wheat',
+          location: 'Punjab, India',
+          minPrice: 20.0,
+          maxPrice: 25.0,
+          avgPrice: 22.5,
+          updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
+        ),
+      );
 
-      _marketPrices.add(MarketPriceModel(
-        cropType: 'Wheat',
-        location: 'Haryana, India',
-        minPrice: 19.0,
-        maxPrice: 24.0,
-        avgPrice: 21.5,
-        updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
-      ));
+      _marketPrices.add(
+        MarketPriceModel(
+          cropType: 'Wheat',
+          location: 'Haryana, India',
+          minPrice: 19.0,
+          maxPrice: 24.0,
+          avgPrice: 21.5,
+          updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
+        ),
+      );
 
-      _marketPrices.add(MarketPriceModel(
-        cropType: 'Rice',
-        location: 'Punjab, India',
-        minPrice: 30.0,
-        maxPrice: 40.0,
-        avgPrice: 35.0,
-        updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
-      ));
+      _marketPrices.add(
+        MarketPriceModel(
+          cropType: 'Rice',
+          location: 'Punjab, India',
+          minPrice: 30.0,
+          maxPrice: 40.0,
+          avgPrice: 35.0,
+          updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
+        ),
+      );
 
-      _marketPrices.add(MarketPriceModel(
-        cropType: 'Cotton',
-        location: 'Gujarat, India',
-        minPrice: 60.0,
-        maxPrice: 70.0,
-        avgPrice: 65.0,
-        updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
-      ));
+      _marketPrices.add(
+        MarketPriceModel(
+          cropType: 'Cotton',
+          location: 'Gujarat, India',
+          minPrice: 60.0,
+          maxPrice: 70.0,
+          avgPrice: 65.0,
+          updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
+        ),
+      );
     }
   }
 }

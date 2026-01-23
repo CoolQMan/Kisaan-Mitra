@@ -1,6 +1,6 @@
 # 🌱 Kisaan Mitra - Farmer's Companion App
 
-> **Note:** This is a prototype application developed for AI4Humanity. It demonstrates the concept and functionality but is not a finished production-ready project.
+> **Note:** This is a prototype application developed for hackathons. It demonstrates the concept and functionality but is not a finished production-ready project.
 
 Kisaan Mitra (Farmer's Friend) is a comprehensive mobile application designed to empower farmers with technology-driven solutions for better crop management, knowledge sharing, and market access.
 
@@ -81,8 +81,8 @@ Kisaan Mitra (Farmer's Friend) is a comprehensive mobile application designed to
 
 1. **Clone the repository**
    ```
-   git clone <repository-url>
-   cd kisaan_mitra
+   git clone https://github.com/CoolQMan/Kisaan-Mitra.git
+   cd Kisaan-Mitra
    ```
 
 2. **Install dependencies**
@@ -146,16 +146,7 @@ lib/
   └── main.dart         # App entry point
 ```
 
-## 🤝 Contributing
-
-Contributions to improve Kisaan Mitra are welcome. Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgements
 
 - All contributors who have helped shape this project
-- AI4Humanity for supporting this prototype
 - Farming communities for their valuable feedback and insights
