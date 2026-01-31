@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import 'package:kisaan_mitra/models/crop_analysis_model.dart';
 
 class AIService {
@@ -9,56 +11,117 @@ class AIService {
   factory AIService() => _instance;
   AIService._internal();
 
-  // Your API key - replace with your actual key
-  final String _apiKey = 'YOUR_API_KEY';
+  // Crop.health API Configuration
+  // TODO: Replace with your actual Crop.health API key from https://crop.kindwise.com
+  final String _cropHealthApiKey =
+      'MtdpQ2i33avSlWEPYvXo6yB04bcFZN0tRBU46HIYwSrNDHTaHp';
+  static const String _cropHealthBaseUrl = 'https://crop.kindwise.com/api/v1';
 
+  // Google Generative AI (kept for irrigation recommendations only)
+  final String _geminiApiKey = 'AIzaSyA1Rxvtogo3o-qq7CFQcU8XzZ0Afq7H-0g';
   late final GenerativeModel _model;
 
   void init() {
     _model = GenerativeModel(
       model: 'gemini-1.5-flash',
-      apiKey: _apiKey,
+      apiKey: _geminiApiKey,
     );
   }
 
+  /// Analyze crop health using Crop.health API
+  ///
+  /// [image] - The crop image file to analyze
+  /// [cropType] - Optional crop type hint to improve accuracy
+  /// [latitude] - Optional GPS latitude for region-specific detection
+  /// [longitude] - Optional GPS longitude for region-specific detection
   Future<CropAnalysisModel> analyzeCropHealth(
-      File image, String cropType) async {
+    File image, {
+    String? cropType,
+    double? latitude,
+    double? longitude,
+  }) async {
     try {
-      // Initialize model if not already done
-      if (!isInitialized) init();
-
+      // Read and encode image as base64
       final bytes = await image.readAsBytes();
-      final content = [
-        Content.multi([
-          TextPart(
-              "Analyze this $cropType plant image for diseases, pests, or nutrient deficiencies. Do NOT use any markdown syntax or formatting in your response. Provide clear answers without asterisks, backticks, or other special characters.\n\nProvide analysis in exactly this format:\n\nHealth Status: (use only Good, Moderate, or Poor)\n\nIssues:\n- Issue 1\n- Issue 2\n\nRecommendations:\n- Recommendation 1\n- Recommendation 2\n\nPreventive Measures:\n- Measure 1\n- Measure 2"),
-          DataPart('image/jpeg', bytes),
-        ])
-      ];
+      final base64Image = base64Encode(bytes);
 
-      final response = await _model.generateContent(
-        content,
-        generationConfig: GenerationConfig(
-          temperature: 0.2,
-          maxOutputTokens: 1024,
-        ),
-      );
+      // Build request body
+      final Map<String, dynamic> requestBody = {
+        'images': [base64Image],
+        'similar_images': true,
+      };
 
-      final text = response.text;
-      if (text == null) {
-        throw Exception('Empty response from AI');
+      // Add optional location data for better accuracy
+      if (latitude != null && longitude != null) {
+        requestBody['latitude'] = latitude;
+        requestBody['longitude'] = longitude;
       }
 
-      return _parseResponseText(text, cropType);
+      // Add datetime for seasonal context
+      requestBody['datetime'] = DateTime.now().toIso8601String().split('T')[0];
+
+      // Make API request
+      final response = await http
+          .post(
+            Uri.parse('$_cropHealthBaseUrl/identification'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Api-Key': _cropHealthApiKey,
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+
+        // Add crop type to response for model parsing
+        responseData['crop_type'] = cropType ?? 'Crop';
+
+        return CropAnalysisModel.fromCropHealthApi(responseData);
+      } else if (response.statusCode == 401) {
+        throw CropHealthApiException(
+          'Invalid API key. Please check your Crop.health API configuration.',
+          statusCode: 401,
+        );
+      } else if (response.statusCode == 429) {
+        throw CropHealthApiException(
+          'Service is busy. Please try again in a few moments.',
+          statusCode: 429,
+        );
+      } else {
+        final errorBody = jsonDecode(response.body);
+        final errorMessage = errorBody['message'] ?? 'Unknown error occurred';
+        throw CropHealthApiException(
+          'Analysis failed: $errorMessage',
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw CropHealthApiException(
+        'No internet connection. Please check your network and try again.',
+        isNetworkError: true,
+      );
+    } on http.ClientException {
+      throw CropHealthApiException(
+        'Network error. Please check your connection and try again.',
+        isNetworkError: true,
+      );
+    } on FormatException {
+      throw CropHealthApiException(
+        'Invalid response from server. Please try again.',
+      );
+    } on CropHealthApiException {
+      rethrow;
     } catch (e) {
-      print('Exception during analysis: $e');
-      // Return mock data ONLY if parsing or API fails, but ideally we show error
-      // user requested fix, so let's try to return mock data as fallback for now
-      // to keep app usable if key is invalid
-      return _getMockData(cropType);
+      throw CropHealthApiException(
+        'Could not analyze the image. Please try again with a clearer photo.',
+      );
     }
   }
 
+  /// Get irrigation recommendations using Google Gemini AI
+  /// This function is unchanged from the original implementation
   Future<Map<String, dynamic>> getIrrigationRecommendations(
       String cropType, Map<String, dynamic> weatherData) async {
     try {
@@ -151,37 +214,23 @@ Tips:
     String fertilizer = 'Balanced fertilizer';
     List<String> tips = [];
 
-    // Split the text into sections
-    final sections = text.split('\n\n');
+    // Split the text into lines for parsing
+    final lines = text.split('\n');
 
-    for (var section in sections) {
-      if (section.toLowerCase().contains('water amount')) {
-        final parts = section.split(':');
-        if (parts.length > 1) {
-          waterAmount = parts[1].trim();
-        }
-      } else if (section.toLowerCase().contains('frequency')) {
-        final parts = section.split(':');
-        if (parts.length > 1) {
-          frequency = parts[1].trim();
-        }
-      } else if (section.toLowerCase().contains('best time')) {
-        final parts = section.split(':');
-        if (parts.length > 1) {
-          bestTime = parts[1].trim();
-        }
-      } else if (section.toLowerCase().contains('fertilizer')) {
-        final parts = section.split(':');
-        if (parts.length > 1) {
-          fertilizer = parts[1].trim();
-        }
-      } else if (section.toLowerCase().contains('tips')) {
-        final lines = section.split('\n');
-        for (var i = 1; i < lines.length; i++) {
-          final line = lines[i].trim();
-          if (line.startsWith('-') || line.startsWith('•')) {
-            tips.add(line.substring(1).trim());
-          }
+    for (var line in lines) {
+      final trimmedLine = line.trim();
+      if (trimmedLine.toLowerCase().startsWith('water amount:')) {
+        waterAmount = trimmedLine.split(':').last.trim();
+      } else if (trimmedLine.toLowerCase().startsWith('frequency:')) {
+        frequency = trimmedLine.split(':').last.trim();
+      } else if (trimmedLine.toLowerCase().startsWith('best time:')) {
+        bestTime = trimmedLine.split(':').last.trim();
+      } else if (trimmedLine.toLowerCase().startsWith('fertilizer:')) {
+        fertilizer = trimmedLine.split(':').last.trim();
+      } else if (trimmedLine.startsWith('-') || trimmedLine.startsWith('•')) {
+        final tip = trimmedLine.substring(1).trim();
+        if (tip.isNotEmpty) {
+          tips.add(tip);
         }
       }
     }
@@ -203,100 +252,20 @@ Tips:
       'tips': tips,
     };
   }
+}
 
-  CropAnalysisModel _parseResponseText(String text, String cropType) {
-    String healthStatus = 'Unknown';
-    List<String> issues = [];
-    List<String> recommendations = [];
-    List<String> preventiveMeasures = [];
+/// Exception thrown when Crop.health API request fails
+class CropHealthApiException implements Exception {
+  final String message;
+  final int? statusCode;
+  final bool isNetworkError;
 
-    // Split the text into sections
-    final sections = text.split('\n\n');
+  CropHealthApiException(
+    this.message, {
+    this.statusCode,
+    this.isNetworkError = false,
+  });
 
-    for (var section in sections) {
-      if (section.toLowerCase().contains('health status')) {
-        final parts = section.split(':');
-        if (parts.length > 1) {
-          healthStatus = parts[1].trim();
-        }
-      } else if (section.toLowerCase().contains('issues')) {
-        final lines = section.split('\n');
-        for (var i = 1; i < lines.length; i++) {
-          final line = lines[i].trim();
-          if (line.startsWith('-') || line.startsWith('•')) {
-            issues.add(line.substring(1).trim());
-          }
-        }
-      } else if (section.toLowerCase().contains('recommendations')) {
-        final lines = section.split('\n');
-        for (var i = 1; i < lines.length; i++) {
-          final line = lines[i].trim();
-          if (line.startsWith('-') || line.startsWith('•')) {
-            recommendations.add(line.substring(1).trim());
-          }
-        }
-      } else if (section.toLowerCase().contains('preventive measures')) {
-        final lines = section.split('\n');
-        for (var i = 1; i < lines.length; i++) {
-          final line = lines[i].trim();
-          if (line.startsWith('-') || line.startsWith('•')) {
-            preventiveMeasures.add(line.substring(1).trim());
-          }
-        }
-      }
-    }
-
-    // If parsing failed, return mock data for now
-    if (issues.isEmpty) {
-      return _getMockData(cropType);
-    }
-
-    return CropAnalysisModel(
-      cropType: cropType,
-      healthStatus: healthStatus,
-      issues: issues,
-      recommendations: recommendations,
-      preventiveMeasures: preventiveMeasures,
-    );
-  }
-
-  // Fallback mock data in case parsing fails
-  CropAnalysisModel _getMockData(String cropType) {
-    switch (cropType.toLowerCase()) {
-      case 'rice':
-        return CropAnalysisModel(
-          cropType: 'Rice',
-          healthStatus: 'Poor',
-          issues: [
-            'Bacterial Leaf Blight',
-            'Nitrogen Deficiency',
-          ],
-          recommendations: [
-            'Apply copper-based fungicide',
-            'Increase nitrogen fertilizer application',
-          ],
-          preventiveMeasures: [
-            'Use disease-resistant varieties',
-            'Maintain proper spacing between plants',
-          ],
-        );
-      default:
-        return CropAnalysisModel(
-          cropType: cropType,
-          healthStatus: 'Moderate',
-          issues: [
-            'Pest Infestation',
-            'Mild Water Stress',
-          ],
-          recommendations: [
-            'Apply appropriate pesticide',
-            'Increase irrigation frequency',
-          ],
-          preventiveMeasures: [
-            'Regular monitoring for early detection',
-            'Maintain consistent watering schedule',
-          ],
-        );
-    }
-  }
+  @override
+  String toString() => message;
 }

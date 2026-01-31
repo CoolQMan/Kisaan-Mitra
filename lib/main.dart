@@ -17,7 +17,7 @@ class KisaanMitraApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.lightTheme,
       themeMode: ThemeMode.light,
-      initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.home,
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
     );

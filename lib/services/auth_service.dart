@@ -43,7 +43,7 @@ class AuthService {
     // Create mock user data
     _currentUser = UserModel(
       id: '1',
-      name: 'Test Farmer',
+      name: 'Rakesh Yadav',
       email: email,
       phoneNumber: '+91 9876543210',
       location: 'Punjab, India',
@@ -54,14 +54,15 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isAuthenticated', true);
     await prefs.setString('userEmail', email);
-    await prefs.setString('userName', 'Test Farmer');
+    await prefs.setString('userName', 'Rakesh Yadav');
     await prefs.setString('userPhone', '+91 9876543210');
 
     return null; // No error means success
   }
 
   // Register method
-  Future<String?> register(String name, String email, String password, String phoneNumber) async {
+  Future<String?> register(
+      String name, String email, String password, String phoneNumber) async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
 
@@ -101,7 +102,7 @@ class AuthService {
         _isAuthenticated = true;
         _currentUser = UserModel(
           id: '1',
-          name: userName ?? 'Test Farmer',
+          name: userName ?? 'Rakesh Yadav',
           email: userEmail,
           phoneNumber: userPhone ?? '+91 9876543210',
           location: 'Punjab, India',

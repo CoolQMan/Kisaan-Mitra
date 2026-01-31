@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kisaan_mitra/config/routes.dart';
 import 'package:kisaan_mitra/services/auth_service.dart';
+import 'package:kisaan_mitra/services/localization_service.dart';
 import 'package:kisaan_mitra/widgets/common/bottom_nav_bar.dart';
+import 'package:kisaan_mitra/widgets/common/language_toggle.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -18,16 +20,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return WillPopScope(
       onWillPop: () async {
         Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.home,
-                (route) => false
-        );
+            context, AppRoutes.home, (route) => false);
         return false;
       },
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text('Profile'),
+          title: Text(loc.profile),
+          actions: const [LanguageToggle()],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -53,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildProfileOption(
                 context,
                 icon: Icons.person,
-                title: 'Edit Profile',
+                title: loc.editProfile,
                 onTap: () {
                   // Navigate to edit profile screen
                 },
@@ -61,7 +61,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildProfileOption(
                 context,
                 icon: Icons.history,
-                title: 'Crop Analysis History',
+                title: loc.isHindi
+                    ? 'फसल विश्लेषण इतिहास'
+                    : 'Crop Analysis History',
                 onTap: () {
                   // Navigate to crop analysis history
                 },
@@ -69,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildProfileOption(
                 context,
                 icon: Icons.shopping_bag,
-                title: 'My Listings',
+                title: loc.myListings,
                 onTap: () {
                   // Navigate to my listings
                 },
@@ -77,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildProfileOption(
                 context,
                 icon: Icons.help,
-                title: 'Help & Support',
+                title: loc.isHindi ? 'सहायता और समर्थन' : 'Help & Support',
                 onTap: () {
                   // Navigate to help & support
                 },
@@ -85,13 +87,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildProfileOption(
                 context,
                 icon: Icons.logout,
-                title: 'Logout',
+                title: loc.logout,
                 onTap: () async {
                   await _authService.logout();
                   Navigator.pushNamedAndRemoveUntil(
                     context,
                     AppRoutes.login,
-                        (route) => false,
+                    (route) => false,
                   );
                 },
               ),
@@ -104,11 +106,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileOption(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).primaryColor),
       title: Text(title),

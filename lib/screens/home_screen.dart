@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kisaan_mitra/config/routes.dart';
 import 'package:kisaan_mitra/services/auth_service.dart';
+import 'package:kisaan_mitra/services/localization_service.dart';
 import 'package:kisaan_mitra/widgets/common/bottom_nav_bar.dart';
-import 'package:kisaan_mitra/widgets/common/custom_button.dart';
+import 'package:kisaan_mitra/widgets/common/language_toggle.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,23 +16,42 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
 
+  @override
+  void initState() {
+    super.initState();
+    // Listen to language changes
+    loc.addListener(_onLanguageChange);
+  }
+
+  @override
+  void dispose() {
+    loc.removeListener(_onLanguageChange);
+    super.dispose();
+  }
+
+  void _onLanguageChange() {
+    setState(() {});
+  }
+
   Future<bool> _onWillPop() async {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Exit App'),
-            content: const Text('Are you sure you want to exit the app?'),
+            title: Text(loc.isHindi ? 'ऐप बंद करें' : 'Exit App'),
+            content: Text(loc.isHindi
+                ? 'क्या आप ऐप बंद करना चाहते हैं?'
+                : 'Are you sure you want to exit the app?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('No'),
+                child: Text(loc.isHindi ? 'नहीं' : 'No'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(true);
                   SystemNavigator.pop();
                 },
-                child: const Text('Yes'),
+                child: Text(loc.isHindi ? 'हाँ' : 'Yes'),
               ),
             ],
           ),
@@ -46,8 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text('Kisaan Mitra'),
+          title: Text(loc.appName),
           actions: [
+            const LanguageToggle(),
             IconButton(
               icon: const Icon(Icons.person),
               onPressed: () {
@@ -64,12 +85,16 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Welcome message
                 Text(
-                  'Hello, ${_authService.currentUser?.name ?? 'Farmer'}',
+                  loc.isHindi
+                      ? 'नमस्ते, ${_authService.currentUser?.name ?? 'राकेश यादव'}'
+                      : 'Hello, ${_authService.currentUser?.name ?? 'Rakesh Yadav'}',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'How can we help your crops today?',
+                  loc.isHindi
+                      ? 'आज आपकी फसलों में कैसे मदद कर सकते हैं?'
+                      : 'How can we help your crops today?',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Colors.grey[600],
                       ),
@@ -85,7 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       _buildFeatureCard(
                         context,
-                        title: 'Crop Health Analysis',
+                        title: loc.isHindi
+                            ? 'फसल स्वास्थ्य विश्लेषण'
+                            : 'Crop Health Analysis',
                         icon: Icons.eco,
                         color: Colors.green,
                         onTap: () {
@@ -94,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       _buildFeatureCard(
                         context,
-                        title: 'Smart Irrigation',
+                        title: loc.smartIrrigation,
                         icon: Icons.water_drop,
                         color: Colors.blue,
                         onTap: () {
@@ -104,16 +131,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       _buildFeatureCard(
                         context,
-                        title: 'Q&A Section',
-                        icon: Icons.question_answer,
+                        title: loc.sarkariSeva,
+                        icon: Icons.account_balance,
                         color: Colors.orange,
                         onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.qaSection);
+                          Navigator.pushNamed(context, AppRoutes.govtServices);
                         },
                       ),
                       _buildFeatureCard(
                         context,
-                        title: 'Marketplace',
+                        title: loc.marketplace,
                         icon: Icons.shopping_cart,
                         color: Colors.purple,
                         onTap: () {
@@ -121,46 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     ],
-                  ),
-                ),
-
-                // Weather summary
-                Card(
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Today\'s Weather',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              '28°C',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Partly Cloudy, 20% chance of rain',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Good day for irrigation',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],
